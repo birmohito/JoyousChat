@@ -33,7 +33,7 @@ const DEMO_QUESTIONNAIRE_RESPONSES = {
 
 async function getUserId() {
   try {
-    const session = await auth.api.getSession({ headers: await headers() })
+    const session = await auth.api.getSession()
     return session?.user?.id ?? null
   } catch {
     return null

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { getJournalEntries, createJournalEntry, deleteJournalEntry, getQuestionnaireResponses } from '@/app/actions/journal'
 import { BookOpen, Plus, Search, Calendar, FileText, ChevronRight, LogOut, X, Trash2, AlertTriangle } from 'lucide-react'
-import { authClient } from '@/lib/auth-client'
+import { signOut } from '@/lib/auth-client'
 import AccessibilityMenu from '@/components/accessibility/accessibility-menu'
 
 interface Entry {
@@ -53,6 +53,10 @@ export default function ArchivePage({ initialEntries, userName }: Props) {
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState('')
   const [showRetakePopup, setShowRetakePopup] = useState(false)
+
+  function dismissRetakePopup() {
+    setShowRetakePopup(false)
+  }
 
   function handleSearch(value: string) {
     setSearch(value)
@@ -126,7 +130,7 @@ export default function ArchivePage({ initialEntries, userName }: Props) {
   }
 
   async function handleSignOut() {
-    await authClient.signOut()
+    await signOut()
     router.push('/')
     router.refresh()
   }
@@ -137,7 +141,7 @@ export default function ArchivePage({ initialEntries, userName }: Props) {
     async function checkQuestionnaire() {
       try {
         const response = await getQuestionnaireResponses()
-        if (!response?.completedAt || !isMounted) return
+        if (!response || !('completedAt' in response) || !isMounted) return
 
         const last = new Date(response.completedAt)
         const now = new Date()

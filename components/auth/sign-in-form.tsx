@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { authClient } from '@/lib/auth-client'
+import { signIn } from '@/lib/auth-client'
 import { Eye, EyeOff, BookOpen, AlertCircle, ArrowLeft } from 'lucide-react'
 import AccessibilityMenu from '@/components/accessibility/accessibility-menu'
 
@@ -21,9 +21,9 @@ export default function SignInForm() {
     setError('')
     setLoading(true)
     try {
-      const result = await authClient.signIn.email({ email, password })
+      const result = await signIn(email, password)
       if (result.error) {
-        setError(result.error.message ?? 'Invalid email or password. Please try again.')
+        setError(result.error ?? 'Invalid email or password. Please try again.')
       } else {
         router.push('/archive')
         router.refresh()

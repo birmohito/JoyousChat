@@ -1,5 +1,4 @@
 import { auth } from '@/lib/auth'
-import { headers } from 'next/headers'
 import { redirect, notFound } from 'next/navigation'
 import { getJournalEntry, getQuestionnaireResponses } from '@/app/actions/journal'
 import JournalChat from '@/components/journal/journal-chat'
@@ -9,7 +8,7 @@ export const metadata = {
 }
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  const session = await auth.api.getSession({ headers: await headers() })
+  const session = await auth.api.getSession()
   const { id } = await params
   const [entry, questionnaire] = await Promise.all([
     getJournalEntry(id),

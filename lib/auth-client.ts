@@ -1,7 +1,26 @@
 'use client'
 
-import { createAuthClient } from 'better-auth/react'
+export async function signUp(email: string, password: string, name: string) {
+  const response = await fetch('/api/auth/sign-up', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, password }),
+  })
+  return response.json()
+}
 
-export const authClient = createAuthClient()
+export async function signIn(email: string, password: string) {
+  const response = await fetch('/api/auth/sign-in', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  })
+  return response.json()
+}
 
-export const { signIn, signUp, signOut, useSession } = authClient
+export async function signOut() {
+  const response = await fetch('/api/auth/sign-out', {
+    method: 'POST',
+  })
+  return response.json()
+}

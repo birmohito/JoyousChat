@@ -25,12 +25,6 @@ interface Props {
   questionnaireContext: Record<string, string>
 }
 
-declare global {
-  interface Window {
-    SpeechRecognition: typeof SpeechRecognition
-    webkitSpeechRecognition: typeof SpeechRecognition
-  }
-}
 
 /** Returns true if the entry was created on today's calendar date (in local time) */
 function isSameDay(date: Date): boolean {
@@ -68,7 +62,7 @@ export default function JournalChat({ entry, userName, questionnaireContext }: P
   const [hasReflected, setHasReflected] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const recognitionRef = useRef<any>(null)
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Scroll to bottom on new messages
@@ -185,7 +179,7 @@ export default function JournalChat({ entry, userName, questionnaireContext }: P
   }
 
   function toggleListening() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!SpeechRecognition) {
       alert('Speech recognition is not supported in this browser. Please try Chrome or Edge.')
       return
@@ -199,8 +193,8 @@ export default function JournalChat({ entry, userName, questionnaireContext }: P
     recognition.continuous = true
     recognition.interimResults = true
     recognition.lang = 'en-US'
-    recognition.onresult = (event) => {
-      const transcript = Array.from(event.results).map(r => r[0].transcript).join('')
+    recognition.onresult = (event: any) => {
+      const transcript = Array.from(event.results).map((r: any) => r[0].transcript).join('')
       setInput(transcript)
     }
     recognition.onend = () => setListening(false)

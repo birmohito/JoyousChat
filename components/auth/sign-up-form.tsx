@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { authClient } from '@/lib/auth-client'
+import { signUp } from '@/lib/auth-client'
 import { Eye, EyeOff, BookOpen, AlertCircle, ArrowLeft } from 'lucide-react'
 import AccessibilityMenu from '@/components/accessibility/accessibility-menu'
 
@@ -33,9 +33,9 @@ export default function SignUpForm() {
 
     setLoading(true)
     try {
-      const result = await authClient.signUp.email({ name, email, password })
+      const result = await signUp(email, password, name)
       if (result.error) {
-        setError(result.error.message ?? 'Could not create account. Please try again.')
+        setError(result.error ?? 'Could not create account. Please try again.')
       } else {
         router.push('/disclosure')
         router.refresh()

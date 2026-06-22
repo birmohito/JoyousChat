@@ -8,7 +8,7 @@ export const metadata = {
 }
 
 export default async function SignInPage() {
-  const session = await auth.api.getSession({ headers: await headers() })
+  const session = await auth.api.getSession()
   if (session?.user) redirect('/archive')
   return <SignInForm />
 }
