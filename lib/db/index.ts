@@ -1,9 +1,18 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
-import { Pool } from 'pg'
+import { Pool, type PoolConfig } from 'pg'
 import * as schema from './schema'
 
-export const pool = new Pool({
+const poolConfig: PoolConfig = {
   connectionString: process.env.DATABASE_URL,
-})
+}
+
+// Supabase Postgres connections usually require SSL in hosted environments.
+if (process.env.DATABASE_URL?.includes('supabase.co')) {
+  poolConfig.ssl = {
+    rejectUnauthorized: false,
+  }
+}
+
+export const pool = new Pool(poolConfig)
 
 export const db = drizzle(pool, { schema })

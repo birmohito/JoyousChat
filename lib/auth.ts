@@ -1,14 +1,12 @@
 import { pool } from '@/lib/db'
 
-// If the developer has explicitly configured Better Auth (BETTER_AUTH_URL)
-// or we're in production, use the real `better-auth` setup. For quick local
-// development without over-engineering, provide a tiny fallback auth object
-// that implements the minimal `api.getSession` and `handler` shape used across
-// the app. This keeps the app runnable locally without Better Auth or extra
-// env vars.
+// If the developer has explicitly configured Better Auth (BETTER_AUTH_URL),
+// use the real `better-auth` setup. Otherwise fall back to a minimal auth object
+// that returns `null` sessions and a 404 auth route. This keeps production
+// deploys working without requiring Better Auth configuration.
 let auth: any
 
-if (process.env.BETTER_AUTH_URL || process.env.NODE_ENV === 'production') {
+if (process.env.BETTER_AUTH_URL) {
   // Lazily import better-auth only when needed
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { betterAuth } = require('better-auth')
