@@ -101,29 +101,6 @@ export default function ArchivePage({ initialEntries, userName }: Props) {
     }
   }
 
-  async function handleFreeWrite() {
-    if (todayEntry) {
-      router.push(`/journal/${todayEntry.id}`)
-      return
-    }
-
-    setCreating(true)
-    setError('')
-    try {
-      const title = `Free Write — ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`
-      const prompt = 'Free write: choose your own topic today and follow your thoughts wherever they go. There is no right answer.'
-      const localDate = new Date().toLocaleDateString('en-CA')
-      const entryId = await createJournalEntry({ title, prompt, response: '', localDate })
-      router.push(`/journal/${entryId}`)
-    } catch (error: unknown) {
-      setCreating(false)
-      if (error instanceof Error) {
-        setError(error.message)
-      } else {
-        setError('Unable to start a free-write entry. Please try again.')
-      }
-    }
-  }
 
   async function handleSignOut() {
     await authClient.signOut()
@@ -226,17 +203,7 @@ export default function ArchivePage({ initialEntries, userName }: Props) {
             >
               {todayMessage}
             </button>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={handleFreeWrite}
-                disabled={creating}
-                className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary hover:text-primary focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-primary disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                Free Write
-              </button>
-            </div>
-          </div>
+           </div>
 
           {/* Search */}
           <div className="mb-6">
