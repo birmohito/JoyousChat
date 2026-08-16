@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { signUp } from '@/lib/auth-client'
-import { Eye, EyeOff, BookOpen, AlertCircle, ArrowLeft } from 'lucide-react'
+import { Eye, EyeOff, BookOpen, AlertCircle, ArrowLeft, PlayCircle } from 'lucide-react'
 import AccessibilityMenu from '@/components/accessibility/accessibility-menu'
 
 export default function SignUpForm() {
@@ -192,6 +192,25 @@ export default function SignUpForm() {
             {loading ? 'Creating account…' : 'Create Account'}
           </button>
         </form>
+
+        {/* Divider */}
+        <div className="my-8 flex items-center gap-4" aria-hidden="true">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">or</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+
+        {/* Demo it */}
+        <Link
+          href="/disclosure"
+          className="w-full inline-flex items-center justify-center gap-2 rounded-xl border-2 border-border px-6 py-3.5 text-base font-semibold text-foreground transition-colors hover:border-primary hover:text-primary focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-primary"
+        >
+          <PlayCircle className="h-4 w-4" aria-hidden="true" />
+          Demo it — no account needed
+        </Link>
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          Explore the full experience with sample data. Nothing is saved.
+        </p>
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
           Already have an account?{' '}
