@@ -139,7 +139,7 @@ export default function DisclosurePage({ userName }: Props) {
             <p><strong>What we collect and why:</strong></p>
             <ul className="list-disc pl-5 space-y-1">
               <li><strong>Name & Email</strong> — to identify your account and personalise your experience.</li>
-              <li><strong>Personality questionnaire responses</strong> — to tailor journaling prompts to your unique personality type, motivational style, and goals.</li>
+              <li><strong>Journaling questionnaire responses</strong> — your experience level, focus areas, and goals, used to tailor prompts to what you're hoping to get out of journaling.</li>
               <li><strong>Journal entries</strong> — stored securely so you can revisit, search, and reflect on your growth over time.</li>
               <li><strong>Device/session metadata</strong> — IP address and user agent, collected by Better Auth for security purposes only.</li>
             </ul>
@@ -177,7 +177,7 @@ export default function DisclosurePage({ userName }: Props) {
               <div>
                 <h2 className="text-base font-semibold text-foreground mb-1">What happens next</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  After agreeing, you will complete a brief <strong className="text-foreground">personality assessment and questionnaire</strong> (10 - 15 minutes). Your answers help our AI understand your personality type, motivational drivers, and journaling goals — so every prompt feels written just for you. Your responses are stored privately and you can retake the assessment at any time.
+                  After agreeing, you will complete a brief <strong className="text-foreground">journaling preferences questionnaire</strong> (10 - 15 minutes). Your answers help our AI understand your journaling experience, focus areas, and goals — so every prompt feels written just for you. Your responses are stored privately and you can retake the questionnaire at any time.
                 </p>
               </div>
             </div>
@@ -218,7 +218,7 @@ export default function DisclosurePage({ userName }: Props) {
           aria-disabled={!canProceed}
         >
           <BookOpen className="h-4 w-4" aria-hidden="true" />
-          Continue to Personality Assessment
+          Continue to Journaling Preferences
         </button>
       </div>
     </main>

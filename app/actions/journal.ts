@@ -18,16 +18,24 @@ const DEMO_JOURNAL_ENTRY = {
   response: '',
   createdAt: new Date(),
 }
-const DEMO_QUESTIONNAIRE_RESPONSES = {
+export type QuestionnaireResponses = Record<string, string | string[]>
+
+const DEMO_QUESTIONNAIRE_RESPONSES: { responses: QuestionnaireResponses } = {
   responses: {
-    energy_source: 'A mix of both, depending on my mood',
-    decision_style: 'A blend of head and heart',
-    daily_rhythm: 'I like a loose structure with room to adapt',
-    top_strength: 'Empathy and connecting with others',
-    biggest_challenge: 'Finding clarity and purpose',
-    journaling_goal: 'Greater self-awareness and clarity',
-    time_horizon: 'Medium-term goals (next 3–6 months)',
-    motivation_style: 'I am motivated by intrinsic curiosity and joy',
+    experience_level: "I've tried it before, but never stuck with it",
+    session_frequency: 'A few times a week',
+    biggest_barrier: 'Losing motivation after a few days',
+    comfort_with_writing: 'Somewhat — it takes me a bit to get going',
+    primary_focus: 'Personal growth & mindset',
+    focus_variety: 'Mix in other areas sometimes',
+    current_life_stage: 'In a season of personal growth or reflection',
+    primary_goals: ['Learn to self-reflect and express myself more clearly', 'Process difficult emotions', 'Practice gratitude'],
+    what_matters_most: 'Understanding myself better',
+    tone_preference: 'Warm and encouraging',
+    challenge_level: 'Occasional gentle challenges to help me grow',
+    session_length: '10–15 minutes',
+    time_of_day: 'Evening',
+    support_style: 'Like a gentle companion checking in',
   },
 }
 
@@ -151,7 +159,7 @@ export async function updateJournalEntry(id: string, data: { title?: string; res
   revalidatePath('/archive')
 }
 
-export async function saveQuestionnaireResponses(responses: Record<string, string>) {
+export async function saveQuestionnaireResponses(responses: QuestionnaireResponses) {
   const userId = await getUserId()
   const id = crypto.randomUUID()
   if (!userId) return id
@@ -171,15 +179,30 @@ export async function getQuestionnaireResponses() {
   return results[0] ?? null
 }
 
-export async function generateJournalPrompt(responses: Record<string, string>): Promise<string> {
+function formatResponses(responses: QuestionnaireResponses): string {
+  return Object.entries(responses)
+    .map(([q, a]) => `${q}: ${Array.isArray(a) ? a.join(', ') : a}`)
+    .join('\n')
+}
+
+// Ordered by relevance for follow-up/encouragement prompts, which only need a slice of context.
+const CONTEXT_KEYS = ['primary_goals', 'primary_focus', 'tone_preference', 'what_matters_most', 'challenge_level']
+
+function pickContext(responses: QuestionnaireResponses, count: number): QuestionnaireResponses {
+  const picked: QuestionnaireResponses = {}
+  for (const key of CONTEXT_KEYS.slice(0, count)) {
+    if (responses[key] !== undefined) picked[key] = responses[key]
+  }
+  return picked
+}
+
+export async function generateJournalPrompt(responses: QuestionnaireResponses): Promise<string> {
   try {
-    const summary = Object.entries(responses)
-      .map(([q, a]) => `${q}: ${a}`)
-      .join('\n')
+    const summary = formatResponses(responses)
 
     const { text } = await generateText({
       model: AI_MODEL,
-      prompt: `You are a compassionate journaling coach. Based on this person's personality and goals, generate ONE warm, specific, open-ended journaling prompt (2–3 sentences max). Do not explain or introduce it — just write the prompt itself.
+      prompt: `You are a compassionate journaling coach. Based on this person's journaling experience, focus areas, and goals, generate ONE warm, specific, open-ended journaling prompt (2–3 sentences max). Do not explain or introduce it — just write the prompt itself.
 
 Person's profile:
 ${summary}`,
@@ -201,13 +224,10 @@ export async function deleteJournalEntry(id: string) {
 
 export async function generateFollowUpPrompt(
   previousResponse: string,
-  questionnaireContext: Record<string, string>,
+  questionnaireContext: QuestionnaireResponses,
 ): Promise<string> {
   try {
-    const context = Object.entries(questionnaireContext)
-      .slice(0, 3)
-      .map(([q, a]) => `${q}: ${a}`)
-      .join('\n')
+    const context = formatResponses(pickContext(questionnaireContext, 3))
 
     const { text } = await generateText({
       model: AI_MODEL,
@@ -227,13 +247,10 @@ Generate ONE brief, thoughtful follow-up journaling prompt (1–2 sentences) tha
 
 export async function generateReflectionPrompt(
   originalEntry: string,
-  questionnaireContext: Record<string, string>,
+  questionnaireContext: QuestionnaireResponses,
 ): Promise<string> {
   try {
-    const context = Object.entries(questionnaireContext)
-      .slice(0, 3)
-      .map(([q, a]) => `${q}: ${a}`)
-      .join('\n')
+    const context = formatResponses(pickContext(questionnaireContext, 3))
 
     const { text } = await generateText({
       model: AI_MODEL,
@@ -254,13 +271,10 @@ Generate ONE warm, inviting reflection prompt (2–3 sentences) asking how their
 
 export async function generateEncouragement(
   userResponse: string,
-  questionnaireContext: Record<string, string>,
+  questionnaireContext: QuestionnaireResponses,
 ): Promise<string> {
   try {
-    const context = Object.entries(questionnaireContext)
-      .slice(0, 2)
-      .map(([q, a]) => `${q}: ${a}`)
-      .join('\n')
+    const context = formatResponses(pickContext(questionnaireContext, 2))
 
     const { text } = await generateText({
       model: AI_MODEL,

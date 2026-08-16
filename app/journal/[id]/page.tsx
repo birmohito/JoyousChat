@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth'
 import { redirect, notFound } from 'next/navigation'
-import { getJournalEntry, getQuestionnaireResponses } from '@/app/actions/journal'
+import { getJournalEntry, getQuestionnaireResponses, type QuestionnaireResponses } from '@/app/actions/journal'
 import JournalChat from '@/components/journal/journal-chat'
 
 export const metadata = {
@@ -29,7 +29,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     <JournalChat
       entry={{ ...safeEntry, createdAt: safeEntry.createdAt }}
       userName={session?.user?.name ?? 'Guest'}
-      questionnaireContext={(questionnaire?.responses as Record<string, string>) ?? {}}
+      questionnaireContext={(questionnaire?.responses as QuestionnaireResponses) ?? {}}
     />
   )
 }

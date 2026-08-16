@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { updateJournalEntry, generateFollowUpPrompt, generateReflectionPrompt, generateEncouragement } from '@/app/actions/journal'
+import { updateJournalEntry, generateFollowUpPrompt, generateReflectionPrompt, generateEncouragement, type QuestionnaireResponses } from '@/app/actions/journal'
 import { Send, Mic, MicOff, Volume2, VolumeX, BookOpen, ArrowLeft, Sparkles, Heart, LockKeyhole } from 'lucide-react'
 import AccessibilityMenu from '@/components/accessibility/accessibility-menu'
 
@@ -22,7 +22,7 @@ interface Message {
 interface Props {
   entry: Entry
   userName: string
-  questionnaireContext: Record<string, string>
+  questionnaireContext: QuestionnaireResponses
 }
 
 

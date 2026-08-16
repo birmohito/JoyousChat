@@ -4,64 +4,93 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { saveQuestionnaireResponses, generateJournalPrompt, createJournalEntry } from '@/app/actions/journal'
-import { Brain, ChevronRight, ChevronLeft, Sparkles, ArrowLeft } from 'lucide-react'
+import { Compass, ChevronRight, ChevronLeft, Sparkles, ArrowLeft } from 'lucide-react'
 import AccessibilityMenu from '@/components/accessibility/accessibility-menu'
 
-const STEPS = [
+interface Question {
+  key: string
+  question: string
+  options: string[]
+  multi?: boolean
+  maxSelect?: number
+}
+
+const STEPS: { section: string; questions: Question[] }[] = [
   {
-    section: 'About You',
+    section: 'Your Journaling Experience',
     questions: [
       {
-        key: 'energy_source',
-        question: 'How do you typically recharge your energy?',
+        key: 'experience_level',
+        question: 'How would you describe your journaling experience?',
         options: [
-          'Spending time alone in quiet reflection',
-          'Being around people and socialising',
-          'A mix of both, depending on my mood',
+          "Brand new — I've never journaled before",
+          "I've tried it before, but never stuck with it",
+          'I journal fairly regularly already',
+          'I’m experienced and want to deepen my practice',
         ],
       },
       {
-        key: 'decision_style',
-        question: 'When making important decisions, you tend to rely on:',
+        key: 'session_frequency',
+        question: 'How often would you like to journal?',
+        options: ['Every day', 'A few times a week', 'Once a week', 'Whenever I feel like it'],
+      },
+      {
+        key: 'biggest_barrier',
+        question: "What's usually gotten in the way of journaling consistently?",
         options: [
-          'Logic, facts, and structured analysis',
-          'Intuition, feelings, and personal values',
-          'A blend of head and heart',
+          'Not having enough time',
+          'Not knowing what to write about',
+          'Forgetting to do it',
+          'Losing motivation after a few days',
+          "Nothing — I'm just getting started",
         ],
       },
       {
-        key: 'daily_rhythm',
-        question: 'Which best describes your daily rhythm?',
+        key: 'comfort_with_writing',
+        question: 'How comfortable are you putting your thoughts into words?',
         options: [
-          'I thrive on routine and structure',
-          'I prefer flexibility and going with the flow',
-          'I like a loose structure with room to adapt',
+          "Not very — I often don't know where to start",
+          'Somewhat — it takes me a bit to get going',
+          'Fairly comfortable',
+          'Very comfortable — writing comes naturally to me',
         ],
       },
     ],
   },
   {
-    section: 'Your Strengths & Challenges',
+    section: 'Your Focus',
     questions: [
       {
-        key: 'top_strength',
-        question: 'Which of these feels most like a personal strength?',
+        key: 'primary_focus',
+        question: 'Which area of your life would you most like your journal to focus on?',
         options: [
-          'Creativity and imagination',
-          'Empathy and connecting with others',
-          'Focus, discipline, and follow-through',
-          'Curiosity and love of learning',
+          'Daily life & routines',
+          'Relationships & friendships',
+          'Work & career',
+          'Health & wellbeing',
+          'Personal growth & mindset',
+          'Creativity & self-expression',
         ],
       },
       {
-        key: 'biggest_challenge',
-        question: 'What is your biggest personal challenge right now?',
+        key: 'focus_variety',
+        question: 'Would you like your prompts to stay focused there, or explore more broadly?',
         options: [
-          'Managing stress and anxiety',
-          'Building confidence and self-belief',
-          'Staying motivated and consistent',
-          'Improving relationships and communication',
-          'Finding clarity and purpose',
+          'Mostly stay focused on that one area',
+          'Mix in other areas sometimes',
+          'Explore broadly across my whole life',
+        ],
+      },
+      {
+        key: 'current_life_stage',
+        question: "Which of these best describes what's going on for you right now?",
+        options: [
+          'Settling into a routine or daily rhythm',
+          'Navigating a relationship or friendship',
+          'Going through change at work or in my career',
+          'Focused on my health or wellbeing',
+          'In a season of personal growth or reflection',
+          'Nothing specific — just want space to think',
         ],
       },
     ],
@@ -70,33 +99,67 @@ const STEPS = [
     section: 'Your Goals',
     questions: [
       {
-        key: 'journaling_goal',
-        question: 'What do you most hope to gain from journaling?',
+        key: 'primary_goals',
+        question: 'Beyond building a steady journaling habit, what would you like it to help you with?',
         options: [
-          'Greater self-awareness and clarity',
-          'Processing emotions and stress',
-          'Tracking progress toward my goals',
-          'Creative expression and exploration',
-          'Building a gratitude practice',
+          'Learn to self-reflect and express myself more clearly',
+          'Externalise my thoughts and feelings',
+          'Track my personal growth over time',
+          'Process difficult emotions',
+          'Practice gratitude',
+          'Build confidence and self-belief',
+          'Gain clarity on my goals and purpose',
+        ],
+        multi: true,
+        maxSelect: 3,
+      },
+      {
+        key: 'what_matters_most',
+        question: 'What would make journaling feel most worthwhile to you?',
+        options: [
+          'Seeing how far I’ve come over time',
+          'Feeling lighter after getting things off my chest',
+          'Understanding myself better',
+          'Having something to look back on',
         ],
       },
       {
-        key: 'time_horizon',
-        question: 'What is your primary focus right now?',
-        options: [
-          'Day-to-day wellbeing and peace of mind',
-          'Medium-term goals (next 3–6 months)',
-          'Long-term life vision and purpose',
-        ],
+        key: 'tone_preference',
+        question: 'What tone of prompts resonates with you most?',
+        options: ['Gentle and reflective', 'Direct and goal-oriented', 'Warm and encouraging', 'Curious and open-ended'],
       },
       {
-        key: 'motivation_style',
-        question: 'Which motivational approach resonates most with you?',
+        key: 'challenge_level',
+        question: 'Should prompts occasionally challenge you, or stay purely comfortable?',
         options: [
-          'I am motivated by achieving specific milestones',
-          'I am motivated by the process of growth itself',
-          'I am motivated by accountability to others',
-          'I am motivated by intrinsic curiosity and joy',
+          'Keep it comfortable and reflective',
+          'Occasional gentle challenges to help me grow',
+          'Push me — I want to be challenged',
+        ],
+      },
+    ],
+  },
+  {
+    section: 'Your Rhythm',
+    questions: [
+      {
+        key: 'session_length',
+        question: 'How much time do you usually have for a journaling session?',
+        options: ['Just a few minutes', '10–15 minutes', '20 minutes or more', 'It varies'],
+      },
+      {
+        key: 'time_of_day',
+        question: 'When would you most likely want to journal?',
+        options: ['Morning', 'Afternoon', 'Evening', 'It varies day to day'],
+      },
+      {
+        key: 'support_style',
+        question: 'How would you like your journal to support you?',
+        options: [
+          'Like a quiet space just for me',
+          'Like a gentle companion checking in',
+          'Like a coach helping me stay accountable',
+          'Like a creative outlet to play in',
         ],
       },
     ],
@@ -114,21 +177,40 @@ export default function QuestionnairePage({ userName }: Props) {
   const router = useRouter()
   const [stepIndex, setStepIndex] = useState(0)
   const [qIndex, setQIndex] = useState(0)
-  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [answers, setAnswers] = useState<Record<string, string | string[]>>({})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   const currentStep = STEPS[stepIndex]
   const currentQ = currentStep.questions[qIndex]
+  const currentAnswer = answers[currentQ.key]
   const globalIndex = STEPS.slice(0, stepIndex).reduce((acc, s) => acc + s.questions.length, 0) + qIndex
   const progress = Math.round((globalIndex / TOTAL) * 100)
 
+  const hasAnswer = currentQ.multi
+    ? Array.isArray(currentAnswer) && currentAnswer.length > 0
+    : typeof currentAnswer === 'string' && currentAnswer.length > 0
+
   function handleAnswer(value: string) {
-    setAnswers(prev => ({ ...prev, [currentQ.key]: value }))
+    if (currentQ.multi) {
+      setAnswers(prev => {
+        const existing = Array.isArray(prev[currentQ.key]) ? (prev[currentQ.key] as string[]) : []
+        const isSelected = existing.includes(value)
+        if (isSelected) {
+          return { ...prev, [currentQ.key]: existing.filter(v => v !== value) }
+        }
+        if (currentQ.maxSelect && existing.length >= currentQ.maxSelect) {
+          return prev
+        }
+        return { ...prev, [currentQ.key]: [...existing, value] }
+      })
+    } else {
+      setAnswers(prev => ({ ...prev, [currentQ.key]: value }))
+    }
   }
 
   function handleNext() {
-    if (!answers[currentQ.key]) return
+    if (!hasAnswer) return
     if (qIndex < currentStep.questions.length - 1) {
       setQIndex(qIndex + 1)
     } else if (stepIndex < STEPS.length - 1) {
@@ -186,9 +268,9 @@ export default function QuestionnairePage({ userName }: Props) {
         {/* Header */}
         <div className="mb-8 text-center">
           <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10" aria-hidden="true">
-            <Brain className="h-6 w-6 text-primary" strokeWidth={1.5} />
+            <Compass className="h-6 w-6 text-primary" strokeWidth={1.5} />
           </div>
-          <h1 className="text-xl font-bold text-foreground">Personality Assessment</h1>
+          <h1 className="text-xl font-bold text-foreground">Journaling Preferences</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Hi {userName.split(' ')[0]}, {TOTAL} quick questions to personalise your prompts
           </p>
@@ -211,30 +293,50 @@ export default function QuestionnairePage({ userName }: Props) {
         {/* Question card */}
         <div className="rounded-2xl border border-border bg-card px-8 py-8 shadow-sm">
           <fieldset>
-            <legend className="mb-6 text-lg font-semibold text-foreground leading-snug text-balance">
+            <legend className="mb-1 text-lg font-semibold text-foreground leading-snug text-balance">
               {currentQ.question}
             </legend>
-            <div className="space-y-3" role="radiogroup">
-              {currentQ.options.map((opt, i) => (
-                <label
-                  key={i}
-                  className={`flex cursor-pointer items-start gap-3 rounded-xl border-2 px-4 py-3.5 transition-colors focus-within:outline focus-within:outline-3 focus-within:outline-primary ${
-                    answers[currentQ.key] === opt
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border bg-background hover:border-primary/40'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name={currentQ.key}
-                    value={opt}
-                    checked={answers[currentQ.key] === opt}
-                    onChange={() => handleAnswer(opt)}
-                    className="mt-0.5 h-4 w-4 shrink-0 text-primary focus-visible:outline focus-visible:outline-3 focus-visible:outline-primary"
-                  />
-                  <span className="text-sm text-foreground leading-relaxed">{opt}</span>
-                </label>
-              ))}
+            {currentQ.multi && (
+              <p className="mb-5 text-xs text-muted-foreground">
+                Choose up to {currentQ.maxSelect} — {Array.isArray(currentAnswer) ? currentAnswer.length : 0} selected
+              </p>
+            )}
+            {!currentQ.multi && <div className="mb-6" />}
+            <div className="space-y-3" role={currentQ.multi ? 'group' : 'radiogroup'}>
+              {currentQ.options.map((opt, i) => {
+                const isChecked = currentQ.multi
+                  ? Array.isArray(currentAnswer) && currentAnswer.includes(opt)
+                  : currentAnswer === opt
+                const isDisabled =
+                  !!currentQ.multi &&
+                  !isChecked &&
+                  Array.isArray(currentAnswer) &&
+                  !!currentQ.maxSelect &&
+                  currentAnswer.length >= currentQ.maxSelect
+                return (
+                  <label
+                    key={i}
+                    className={`flex items-start gap-3 rounded-xl border-2 px-4 py-3.5 transition-colors focus-within:outline focus-within:outline-3 focus-within:outline-primary ${
+                      isChecked
+                        ? 'border-primary bg-primary/5'
+                        : isDisabled
+                          ? 'border-border bg-background opacity-50 cursor-not-allowed'
+                          : 'border-border bg-background hover:border-primary/40 cursor-pointer'
+                    }`}
+                  >
+                    <input
+                      type={currentQ.multi ? 'checkbox' : 'radio'}
+                      name={currentQ.key}
+                      value={opt}
+                      checked={isChecked}
+                      disabled={isDisabled}
+                      onChange={() => handleAnswer(opt)}
+                      className="mt-0.5 h-4 w-4 shrink-0 text-primary focus-visible:outline focus-visible:outline-3 focus-visible:outline-primary"
+                    />
+                    <span className="text-sm text-foreground leading-relaxed">{opt}</span>
+                  </label>
+                )
+              })}
             </div>
           </fieldset>
         </div>
@@ -259,7 +361,7 @@ export default function QuestionnairePage({ userName }: Props) {
           <button
             type="button"
             onClick={handleNext}
-            disabled={!answers[currentQ.key] || loading}
+            disabled={!hasAnswer || loading}
             className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-primary disabled:opacity-40 disabled:cursor-not-allowed"
             aria-busy={loading}
           >

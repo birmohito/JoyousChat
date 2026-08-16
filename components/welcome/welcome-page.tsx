@@ -60,7 +60,7 @@ export default function WelcomePage() {
 
       {/* Subtitle */}
       <p className="mb-12 max-w-md text-center text-base text-muted-foreground leading-relaxed text-pretty">
-        AI-crafted prompts, personalised to your personality, goals, and growth journey — one entry at a time.
+        AI-crafted prompts, personalised to your experience, focus, and goals — one entry at a time.
       </p>
 
       {/* CTA buttons */}

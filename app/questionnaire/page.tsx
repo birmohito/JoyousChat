@@ -2,7 +2,7 @@ import { auth } from '@/lib/auth'
 import QuestionnairePage from '@/components/questionnaire/questionnaire-page'
 
 export const metadata = {
-  title: 'Personality Assessment — Joyous Chat',
+  title: 'Journaling Preferences — Joyous Chat',
 }
 
 export default async function Page() {
